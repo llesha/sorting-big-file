@@ -30,12 +30,16 @@ public class ExternalSorter {
             throw new RuntimeException(e);
         }
         merge(0, chunkIndex, file);
+        deleteTempFiles(chunkIndex);
     }
 
     private void sortAndWrite(List<LineWithKey> chunkToSort, int chunkIndex) throws IOException {
         // this also can be written by hand, but it's not the point of the task
         Collections.sort(chunkToSort);
         File file = new File(getFileName(chunkIndex));
+        if (file.exists()) {
+            throw new RuntimeException("Please move file " + file.getName() + " to another directory for program to run.");
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             int i = 0;
             while (i < chunkToSort.size()) {
@@ -102,6 +106,12 @@ public class ExternalSorter {
 
         Collections.sort(chunkToSort);
         return chunkToSort;
+    }
+
+    private void deleteTempFiles(int end) {
+        for (int i = 0; i <= end; i++) {
+            new File(getFileName(i)).delete();
+        }
     }
 
     private static String getFileName(int number) {
